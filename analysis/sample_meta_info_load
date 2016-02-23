@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source globals.sh
+
+file=sample_meta_info.tsv
+
+mysql -h $HOST $DB --local-infile << EOF
+DROP TABLE IF EXISTS sample_meta_info;
+CREATE TABLE sample_meta_info (
+	sample_name	VARCHAR(128),
+	O2		VARCHAR(32),
+	replicate	INTEGER,
+	week		INTEGER,
+	project		INTEGER
+);
+LOAD DATA LOCAL INFILE '$file' INTO TABLE sample_meta_info FIELDS TERMINATED BY '\t' IGNORE 1 LINES;
+EOF

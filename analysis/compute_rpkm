@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source globals.sh
+
+SQL=$0.sql
+
+conditions=`echo "SELECT DISTINCT(shortd) FROM sample_info WHERE include = 1 ORDER BY shortd;" | mysql -h $HOST $DB -s`
+
+for condition in $conditions
+do
+	echo $condition
+	samples=`echo "SELECT sample FROM sample_info WHERE shortd = '$condition' ORDER BY sample;" | mysql -h $HOST $DB -s`
+	for sample in $samples
+	do
+		genes_table=`echo "SELECT genes_table FROM sample_info WHERE sample='$sample';" | mysql -s -h $HOST $DB`
+cat << EOF >> $SQL
+SELECT '$sample';
+
+# count reads mapped to coding sequences
+SELECT @sum_to_CDS:=SUM(reads_mapped) FROM summary_${sample} AS s INNER JOIN $genes_table AS g ON s.locus_tag=g.locus_tag WHERE g.type='CDS';
+
+# compute RPKM
+UPDATE summary_${sample} AS s INNER JOIN $genes_table AS g ON s.locus_tag=g.locus_tag SET rpkm=
+        reads_mapped /
+# length of gene in kilobases
+		((ABS(g.end_coord - g.start_coord) + 1) / 1000) /
+# millions of reads mapped to coding sequences
+                (@sum_to_CDS / 1000000)
+;
+EOF
+	done
+done
+
+
+mysql -h $HOST $DB < $SQL
