@@ -1,7 +1,8 @@
 #!/bin/bash
 
+# -e fails when subcommands fail.  -u fails when unknown variable is referenced.  -x traces all commands after expansion. 
+set -eux  
 file=../assemble_summaries/summary_counts.xls
-genome="Methylotenera mobilis JLW8"
 
 # this needs to be a for loop over the genome names that substitutes them in for $genome
-R --no-save --args $file "$genome" < normalize.R
+R --no-save --args $file < normalize.R
