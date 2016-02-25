@@ -175,11 +175,11 @@ dirname = "read_counts_per_gene--normalized_by_genome"
 
 genomes = unique(masterD$genome)
 print(genomes)
-#for(g in c("Methylotenera mobilis JLW8") ){
-#for(g in c('Methylotenera mobilis JLW8','Methylobacter tundripaludum 21/22', 'Methylobacter tundripaludum 31/32')){
-#for(g in c('Methylotenera mobilis JLW8','Methylobacter tundripaludum 21/22', 'Methylobacter tundripaludum 31/32', 'Methylophilus sp. Q8', 'Methylophilus sp. 5', 'Methylosarcina lacus LW14', 'Methylotenera mobilis JLW8', 'Methylotenera mobilis 13')){
-#for(g in c('Methylovorus glucosetrophus SIP3-4')){
-for(g in unique(masterD$genome)){
+
+# test known problem genome(s): 
+for(g in c("Methylophilaceae-8 (UID203) ") ){
+
+#for(g in unique(masterD$genome)){
 	print(g)
 	try(normalize_genome(genome=g, dirname=dirname, workbook=wb))        
 	}
