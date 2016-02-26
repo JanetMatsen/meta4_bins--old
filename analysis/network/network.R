@@ -2,8 +2,12 @@ library("GeneNet")
 
 pdf("network.pdf")
 
-df <- t(read.table('genome_normalized_counts.tsv', row.names=1, header=T, sep='\t'))
+df <- read.table('normalized_counts.tsv', row.names=1, header=T, sep='\t')
+df.order <- order(rowMeans(df), decreasing=T)
+head(df[df.order, ])
+df <- head(df[df.order,], 1000)
 head(df)
+df <- t(df)
 
 # estimate partial correlations using shrinkage
 pc <- ggm.estimate.pcor(df)
@@ -27,11 +31,16 @@ dim(ten.net)
 fixed.net <- extract.network(edges, method.ggm="number", cutoff.ggm=10)
 dim(fixed.net)
 
+save.image(file='network.R.RData')
+
 library("Rgraphviz") 
 
 
 node.labels = colnames(df)
 gr = network.make.graph(net, node.labels, drop.singles=TRUE)
+
+toDot(gr, 'network.R.dot')
+
 table(  edge.info(gr)$dir )
 sort( node.degree(gr), decreasing=TRUE)
 
@@ -51,7 +60,11 @@ edgeAttrs$lty = ifelse(edi$weight < 0, "dotted", "solid") # negative correlation
 edgeAttrs$color = ifelse(edi$dir == "none", "black", "red")
 edgeAttrs$label = round(edi$weight, 2) # use partial correlation as edge labels
 
+save.image(file='network.R.graphviz.preplot.RData')
+
 #+ fig.width=8, fig.height=7
 plot(gr, attrs = globalAttrs, nodeAttrs = nodeAttrs, edgeAttrs = edgeAttrs, "fdp")
 
 dev.off()
+
+save.image(file='network.R.graphviz.RData')
